@@ -6,13 +6,21 @@ import (
 	"msghub"
 	"strings"
 	"encoding/json"
+	"os"
 )
 
-const server = ":9001"
+const port = ":9001"
+
+func TestMain(m *testing.M) {
+	hub := main.NewHub(port)
+	hub.Bind()
+	go hub.Listen()
+	os.Exit(m.Run())
+}
 
 func TestIdentityMessage(t *testing.T) {
 	payload := `{ "type": "getUserId" }`
-	conns := [3]net.Conn{ dial(server, t), dial(server, t), dial(server, t) }
+	conns := [3]net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
 	var user *main.User
 
 	for i, conn := range conns {
@@ -32,11 +40,11 @@ func TestIdentityMessage(t *testing.T) {
 	}
 }
 
-func dial(server string, t *testing.T) (net.Conn) {
-	conn, err := net.Dial("tcp", server)
+func dial(port string, t *testing.T) (net.Conn) {
+	conn, err := net.Dial("tcp", port)
 
 	if err != nil {
-		t.Fatalf("Couldn't connect to %s: %s", server, err)
+		t.Fatalf("Couldn't connect to %s: %s", port, err)
 	}
 
 	return conn
