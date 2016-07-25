@@ -8,14 +8,14 @@ import (
 
 type Hub struct {
 	Port string
+	Actions *Actions
 	Listener net.Listener
-	Users *UserRepository
 }
 
 func NewHub(port string) (*Hub) {
 	hub := new(Hub)
 	hub.Port = port
-	hub.Users = NewUserRepository()
+	hub.Actions = NewActions()
 
 	return hub
 }
@@ -39,7 +39,7 @@ func (hub *Hub) Listen() {
 			panic(err)
 		}
 
-		hub.Users.Add(conn)
+		hub.Actions.Users.Add(conn)
 
 		go hub.ListenForRequests(conn)
 	}
@@ -54,14 +54,12 @@ func (hub *Hub) ListenForRequests(conn net.Conn) {
 		panic(err)
 	}
 
-	/* Satisfying first functional test for now.
-	 * Will split into router for next test */
+	switch request.Type {
+		case "getUserId":
+			hub.Actions.GetUserId(conn)
+			break
 
-	user := hub.Users.GetByConn(conn)
-	encoder := json.NewEncoder(conn);	
-	err = encoder.Encode(user)
-
-	if err != nil {
-		panic(err)
+		default:
+			hub.Actions.NotFound(conn)
 	}
 }

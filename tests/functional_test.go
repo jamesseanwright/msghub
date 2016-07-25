@@ -40,6 +40,25 @@ func TestIdentityMessage(t *testing.T) {
 	}
 }
 
+func TestInvalidCommand(t *testing.T) {
+	payload := `{ "type": "foobar" }`
+	conn := dial(port, t)
+	var err *main.ErrorMessage
+
+	sendPayload(conn, payload, t)
+	unmarshal(&err, conn, t)
+	
+	if err == nil {
+		t.Error("Expected error response to not be nil")
+	}
+
+	if got, wanted := err.Message, "Command not found"; got != wanted {
+		t.Errorf("Incorrect error message", wanted, got)
+	}
+
+	conn.Close()
+}
+
 func dial(port string, t *testing.T) (net.Conn) {
 	conn, err := net.Dial("tcp", port)
 

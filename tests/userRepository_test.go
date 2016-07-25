@@ -3,28 +3,7 @@ package tests
 import (
 	"msghub"
 	"testing"
-	"net"
 )
-
-type MockConn struct {
-	net.Conn
-	CalledMethods map[string]bool
-}
-
-func NewMockConn() (*MockConn) {
-	conn := new(MockConn)
-	conn.CalledMethods = make(map[string]bool)
-	return conn
-}
-
-func (conn *MockConn) Close() (error) {
-	conn.CalledMethods["Close"] = true
-	return nil
-}
-
-func (conn *MockConn) WasMethodCalled(name string) (bool) {
-	return conn.CalledMethods[name]
-}
 
 func TestUserRepositoryAddAndGetByConn(t *testing.T) {
 	id := uint64(1)
