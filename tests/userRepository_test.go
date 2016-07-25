@@ -26,11 +26,12 @@ func (conn *MockConn) WasMethodCalled(name string) (bool) {
 	return conn.CalledMethods[name]
 }
 
-func TestUserRepositoryAddAndGet(t *testing.T) {
+func TestUserRepositoryAddAndGetByConn(t *testing.T) {
 	id := uint64(1)
 	userRepository := main.NewUserRepository()
-	userRepository.Add(NewMockConn());
-	user := userRepository.Get(id)
+	conn := NewMockConn()
+	userRepository.Add(conn);
+	user := userRepository.GetByConn(conn)
 
 	if user == nil {
 		t.Fatal("Retrieved user is nil")
@@ -41,14 +42,14 @@ func TestUserRepositoryAddAndGet(t *testing.T) {
 	}
 }
 
-func TestUserRepositoryGetAllExcept(t *testing.T) {
+func TestUserRepositoryGetAllByIdExcept(t *testing.T) {
 	id := uint64(2)
 	userRepository := main.NewUserRepository()
 	userRepository.Add(NewMockConn());
 	userRepository.Add(NewMockConn());
 	userRepository.Add(NewMockConn());
 	
-	users := userRepository.GetAllExcept(id)
+	users := userRepository.GetAllByIdExcept(id)
 
 	if users == nil {
 		t.Fatal("Returned users map is nil")
@@ -71,7 +72,7 @@ func TestUserRepositoryDelete(t *testing.T) {
 	conn := NewMockConn()
 	userRepository.Add(conn);
 	userRepository.Delete(id);
-	user := userRepository.Get(id)
+	user := userRepository.GetByConn(conn)
 
 	if user != nil {
 		t.Fatal("User was not deleted")

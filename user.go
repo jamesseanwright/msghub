@@ -6,5 +6,5 @@ import (
 
 type User struct {
 	Id uint64
-	Conn net.Conn
+	Conn net.Conn `json: "-"`
 }

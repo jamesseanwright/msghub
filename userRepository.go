@@ -18,11 +18,17 @@ func (repo *UserRepository) Add(conn net.Conn) {
 	repo.Users[id] = user
 }
 
-func (repo *UserRepository) Get(id uint64) (*User) {
-	return repo.Users[id]
+func (repo *UserRepository) GetByConn(conn net.Conn) (*User) {
+	for _, user := range repo.Users {
+		if user.Conn == conn {
+			return user
+		}
+	}
+
+	return nil
 }
 
-func (repo *UserRepository) GetAllExcept(id uint64) ([]*User) {
+func (repo *UserRepository) GetAllByIdExcept(id uint64) ([]*User) {
 	users := make([]*User, len(repo.Users) - 1)
 	i := 0
 
