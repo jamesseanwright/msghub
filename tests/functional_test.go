@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 	"net"
-	"message-delivery-system"
+	"msghub"
 	"strings"
 	"encoding/json"
 )
