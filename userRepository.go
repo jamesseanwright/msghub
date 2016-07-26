@@ -23,6 +23,12 @@ func (repo *UserRepository) GetByConn(conn net.Conn) (*User) {
 }
 
 func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
+	onlyUser := len(repo.Users) == 1
+	
+	if (onlyUser) {
+		return make([]*User, 0)
+	}
+
 	users := make([]*User, len(repo.Users) - 1)
 	i := 0
 

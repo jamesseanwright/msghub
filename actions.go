@@ -22,13 +22,14 @@ func (actions *Actions) GetUserId(conn net.Conn) (error) {
 }
 
 func (actions *Actions) GetAllUsers(conn net.Conn) (error) {
-	// user := actions.Users.GetAllByConnExcept(conn)
-	// encoder := json.NewEncoder(conn)
-	// return encoder.Encode(user)
-
-	err := ErrorMessage { "Not implemented" }
+	user := actions.Users.GetAllByConnExcept(conn)
 	encoder := json.NewEncoder(conn)
-	return encoder.Encode(err)
+	return encoder.Encode(user)
+}
+
+func (actions *Actions) Disconnect(conn net.Conn) (error) {
+	actions.Users.DeleteByConn(conn)
+	return conn.Close()
 }
 
 func (actions *Actions) NotFound(conn net.Conn) (error) {

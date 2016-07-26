@@ -34,7 +34,7 @@ func TestIdentityMessage(t *testing.T) {
 			t.Errorf("Expected user ID to be %d, but got %d", wantedId, user.Id)
 		}
 
-		conn.Close()
+		disconnect(conn, t)
 	}
 }
 
@@ -48,18 +48,18 @@ func TestListMessage(t *testing.T) {
 
 	if users == nil {
 		t.Error("Expected users array to not be nil")
-	} else if wanted, got := len(users), len(conns) - 1; wanted != got {
-		t.Errorf("Expected different users array length. Got %d,wanted %d", got, wanted)
+	} else if wanted, got := len(conns), len(users) - 1; wanted != got {
+		t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
 	}
 
 	for _, user := range users {
 		if user.Id != 2 || user.Id != 3 {
-			t.Errorf("User has incorrect ID:", user.Id)
+			t.Error("User has incorrect ID:", user.Id)
 		}
 	}
 
 	for _, conn := range conns {
-		conn.Close()
+		disconnect(conn, t)
 	}
 }
 
@@ -74,11 +74,11 @@ func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
 
 		if users == nil {
 			t.Error("Expected users array to not be nil")
-		} else if wanted, got := len(users), len(conns) - 1; wanted != got {
-			t.Errorf("Expected different users array length. Got %d,wanted %d", got, wanted)
+		} else if wanted, got := len(conns), len(users) - 1; wanted != got {
+			t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
 		}
 
-		conns[i].Close()
+		disconnect(conns[i], t)
 		conns = conns[0:i]
 	}
 }
@@ -99,7 +99,7 @@ func TestInvalidCommand(t *testing.T) {
 		t.Errorf("Incorrect error message", wanted, got)
 	}
 
-	conn.Close()
+	disconnect(conn, t)
 }
 
 func dial(port string, t *testing.T) (net.Conn) {
@@ -128,4 +128,9 @@ func unmarshal(target interface{}, conn net.Conn, t *testing.T) {
 	if err != nil {
 		t.Error("Couldn't deserialise JSON:", err)
 	}
+}
+
+func disconnect(conn net.Conn, t *testing.T) {
+	payload := `{ "type": "disconnect" }`
+	sendPayload(conn, payload, t)
 }
