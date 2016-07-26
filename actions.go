@@ -21,6 +21,16 @@ func (actions *Actions) GetUserId(conn net.Conn) (error) {
 	return encoder.Encode(user)
 }
 
+func (actions *Actions) GetAllUsers(conn net.Conn) (error) {
+	// user := actions.Users.GetAllByConnExcept(conn)
+	// encoder := json.NewEncoder(conn)
+	// return encoder.Encode(user)
+
+	err := ErrorMessage { "Not implemented" }
+	encoder := json.NewEncoder(conn)
+	return encoder.Encode(err)
+}
+
 func (actions *Actions) NotFound(conn net.Conn) (error) {
 	err := ErrorMessage { "Command not found" }
 	encoder := json.NewEncoder(conn)

@@ -48,18 +48,24 @@ func (hub *Hub) Listen() {
 func (hub *Hub) ListenForRequests(conn net.Conn) {
 	var request Request
 	decoder := json.NewDecoder(conn);
-	err := decoder.Decode(&request)
 
-	if err != nil {
-		panic(err)
-	}
+	for decoder.More() {
+		err := decoder.Decode(&request)
 
-	switch request.Type {
-		case "getUserId":
-			hub.Actions.GetUserId(conn)
-			break
+		if err != nil {
+			panic(err)
+		}
 
-		default:
-			hub.Actions.NotFound(conn)
+		switch request.Type {
+			case "getUserId":
+				hub.Actions.GetUserId(conn)
+				break
+
+			case "getAllUsers":
+				hub.Actions.GetAllUsers(conn)
+
+			default:
+				hub.Actions.NotFound(conn)
+		}
 	}
 }

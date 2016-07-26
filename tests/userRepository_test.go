@@ -46,6 +46,22 @@ func TestUserRepositoryGetAllByConnExcept(t *testing.T) {
 	}
 }
 
+func TestUserRepositoryOneUserGetAllByConnExcept(t *testing.T) {
+	conn := NewMockConn()
+	userRepository := main.NewUserRepository()
+	userRepository.Add(conn);
+	
+	users := userRepository.GetAllByConnExcept(conn)
+
+	if users == nil {
+		t.Fatal("Returned users map is nil")
+	}
+
+	if len(users) != 0 {
+		t.Fatalf("Map is of incorrect length. Got %d, wanted %d", len(users), 0)
+	}
+}
+
 func TestUserRepositoryDeleteByConn(t *testing.T) {
 	userRepository := main.NewUserRepository()
 	conn := NewMockConn()
