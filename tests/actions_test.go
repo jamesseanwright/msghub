@@ -8,7 +8,7 @@ import (
 func TestGetUserId(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
-	actions.Users.Add(conn) // TODO: mock user repo	
+	actions.Users.Add(conn) // TODO: mock user repo
 	actions.GetUserId(conn)
 
 	if !conn.WasMethodCalled("Write") {
@@ -34,8 +34,8 @@ func TestDisconnect(t *testing.T) {
 	actions.Users.Add(conn)
 	actions.Disconnect(conn)
 
-	if !conn.WasMethodCalled("Close") {
-		t.Fatal("Connection was never closed")
+	if !conn.WasMethodCalled("Write") {
+		t.Fatal("Connection was never written to")
 	}
 }
 

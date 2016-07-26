@@ -1,13 +1,12 @@
 package tests
 
 import (
-	"testing"
-	"net"
-	"msghub"
-	"strings"
 	"encoding/json"
+	"net"
 	"os"
-	"fmt"
+	"strings"
+	"testing"
+	"msghub"
 )
 
 const port = ":9001"
@@ -21,14 +20,14 @@ func TestMain(m *testing.M) {
 
 func TestIdentityMessage(t *testing.T) {
 	payload := `{ "type": "getUserId" }`
-	conns := [3]net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
+	conns := [3]net.Conn{dial(port, t), dial(port, t), dial(port, t)}
 	var user *main.User
 
 	for i, conn := range conns {
 		wantedId := i + 1
 		sendPayload(conn, payload, t)
 		unmarshal(&user, conn, t)
-		
+
 		if user == nil {
 			t.Error("Expected user to not be nil")
 		} else if user.Id != uint64(wantedId) {
@@ -41,7 +40,7 @@ func TestIdentityMessage(t *testing.T) {
 
 func TestListMessage(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
-	conns := [3]net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
+	conns := [3]net.Conn{dial(port, t), dial(port, t), dial(port, t)}
 	var users []*main.User
 
 	sendPayload(conns[0], payload, t)
@@ -49,8 +48,8 @@ func TestListMessage(t *testing.T) {
 
 	if users == nil {
 		t.Error("Expected users array to not be nil")
-	} else if wanted, got := len(conns) - 1, len(users); wanted != got {
-		t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
+	} else if wanted, got := len(conns)-1, len(users); wanted != got {
+		t.Errorf("Expected different users array length. Wanted %d, got %d", wanted, got)
 	}
 
 	for _, user := range users {
@@ -66,23 +65,24 @@ func TestListMessage(t *testing.T) {
 
 func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
-	conns := []net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
+	masterConn := dial(port, t)
+	conns := [2]net.Conn{dial(port, t), dial(port, t)}
 
-	for i := len(conns) - 1; i >= 0; i-- {
+	for i := 0; i < len(conns) - 1; i++ {
 		var users []*main.User
-		sendPayload(conns[0], payload, t)
-		unmarshal(&users, conns[0], t)
-		fmt.Println(users)
+		sendPayload(masterConn, payload, t)
+		unmarshal(&users, masterConn, t)
 
 		if users == nil {
 			t.Error("Expected users array to not be nil")
-		} else if wanted, got := len(conns) - 1, len(users); wanted != got {
-			t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
+		} else if wanted, got := len(conns) - i, len(users); wanted != got {
+			t.Errorf("Expected different users array length. Wanted %d, got %d", wanted, got)
 		}
 
 		disconnect(conns[i], t)
-		conns = conns[0:i]
 	}
+
+	disconnect(masterConn, t)
 }
 
 func TestInvalidCommand(t *testing.T) {
@@ -92,19 +92,19 @@ func TestInvalidCommand(t *testing.T) {
 
 	sendPayload(conn, payload, t)
 	unmarshal(&err, conn, t)
-	
+
 	if err == nil {
 		t.Error("Expected error response to not be nil")
 	}
 
 	if got, wanted := err.Message, "Command not found"; got != wanted {
-		t.Errorf("Incorrect error message", wanted, got)
+		t.Error("Incorrect error message", wanted, got)
 	}
 
 	disconnect(conn, t)
 }
 
-func dial(port string, t *testing.T) (net.Conn) {
+func dial(port string, t *testing.T) net.Conn {
 	conn, err := net.Dial("tcp", port)
 
 	if err != nil {
@@ -135,4 +135,7 @@ func unmarshal(target interface{}, conn net.Conn, t *testing.T) {
 func disconnect(conn net.Conn, t *testing.T) {
 	payload := `{ "type": "disconnect" }`
 	sendPayload(conn, payload, t)
+	var info main.InfoMessage
+	unmarshal(&info, conn, t)
+	conn.Close()
 }

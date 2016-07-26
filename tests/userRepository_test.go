@@ -72,8 +72,4 @@ func TestUserRepositoryDeleteByConn(t *testing.T) {
 	if user != nil {
 		t.Fatal("User was not deleted")
 	}
-
-	if !conn.WasMethodCalled("Close") {
-		t.Fatal("Close method was not called on user's connection")		
-	}
 }

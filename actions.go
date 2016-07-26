@@ -29,7 +29,9 @@ func (actions *Actions) GetAllUsers(conn net.Conn) (error) {
 
 func (actions *Actions) Disconnect(conn net.Conn) (error) {
 	actions.Users.DeleteByConn(conn)
-	return conn.Close()
+	info := InfoMessage { "Connection closed" }
+	encoder := json.NewEncoder(conn)
+	return encoder.Encode(info)
 }
 
 func (actions *Actions) NotFound(conn net.Conn) (error) {

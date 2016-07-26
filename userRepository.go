@@ -34,6 +34,7 @@ func (repo *UserRepository) GetByConn(conn net.Conn) (*User) {
 }
 
 func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
+	repo.Mutex.RLock()	
 	onlyUser := len(repo.Users) == 1
 	
 	if (onlyUser) {
@@ -42,8 +43,6 @@ func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
 
 	users := make([]*User, len(repo.Users) - 1)
 	i := 0
-
-	repo.Mutex.RLock()
 
 	for _, user := range repo.Users {
 		if user.Conn != conn {
@@ -59,7 +58,6 @@ func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
 
 func (repo *UserRepository) DeleteByConn(conn net.Conn) {
 	repo.Mutex.Lock()
-	conn.Close()
 	delete(repo.Users, conn)
 	repo.Mutex.Unlock()
 }
