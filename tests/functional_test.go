@@ -30,13 +30,56 @@ func TestIdentityMessage(t *testing.T) {
 		
 		if user == nil {
 			t.Error("Expected user to not be nil")
-		}
-
-		if user.Id != uint64(wantedId) {
+		} else if user.Id != uint64(wantedId) {
 			t.Errorf("Expected user ID to be %d, but got %d", wantedId, user.Id)
 		}
 
 		conn.Close()
+	}
+}
+
+func TestListMessage(t *testing.T) {
+	payload := `{ "type": "getAllUsers" }`
+	conns := [3]net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
+	var users []*main.User
+
+	sendPayload(conns[0], payload, t)
+	unmarshal(&users, conns[0], t)
+
+	if users == nil {
+		t.Error("Expected users array to not be nil")
+	} else if wanted, got := len(users), len(conns) - 1; wanted != got {
+		t.Errorf("Expected different users array length. Got %d,wanted %d", got, wanted)
+	}
+
+	for _, user := range users {
+		if user.Id != 2 || user.Id != 3 {
+			t.Errorf("User has incorrect ID:", user.Id)
+		}
+	}
+
+	for _, conn := range conns {
+		conn.Close()
+	}
+}
+
+func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
+	payload := `{ "type": "getAllUsers" }`
+	conns := []net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
+	var users []*main.User
+
+	for i := len(conns) - 1; i >= 0; i-- {
+		sendPayload(conns[0], payload, t)
+		unmarshal(&users, conns[0], t)
+
+		if users == nil {
+			t.Error("Expected users array to not be nil")
+		} else if wanted, got := len(users), len(conns) - 1; wanted != got {
+			t.Errorf("Expected different users array length. Got %d,wanted %d", got, wanted)
+		}
+
+		conns[i].Close()
+		conns = conns[0:i]
 	}
 }
 
