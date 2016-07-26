@@ -99,16 +99,23 @@ func TestRelayMessage(t *testing.T) {
 
 	for i := 0; i < connsCount; i++ {
 		var message *main.UserMessage
+		var err *main.ErrorMessage
+
 		conn := conns[i]
-		isRecipient := i == 5 || i == 8
+		isRecipient := i == 7 || i == 8
 		decoder := json.NewDecoder(conn)
-		decoder.Decode(&message)
+
+		if (isRecipient) {
+			decoder.Decode(&message)
+		} else {
+			decoder.Decode(&err)
+		}
 
 		if isRecipient && message == nil {
 			t.Error("Intended recipient didn't receive message")
 		} else if wanted, got := "Hello", message.Message; isRecipient && wanted != got {
 			t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
-		} else if !isRecipient && message != nil {
+		} else if !isRecipient && err == nil {
 			t.Error("Incorrect recipient received message")
 		}
 
@@ -116,6 +123,24 @@ func TestRelayMessage(t *testing.T) {
 	}
 
 	logout(masterConn, t)
+}
+
+func TestRelayMessageInvalidUser(t *testing.T) {
+	payload := `{ "type": "sendMessage", "userIds": [10], "message": "Hello" }`
+	conn := dial(port, t)
+
+	sendPayload(conn, payload, t)
+
+	var message *main.ErrorMessage
+	unmarshal(&message, conn, t)
+
+	if message == nil {
+		t.Error("Expected error response to not be nil")
+	} else if wanted, got := "User(s) not found", message.Message; wanted != got {
+		t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
+	}
+
+	logout(conn, t)
 }
 
 func TestInvalidCommand(t *testing.T) {

@@ -27,6 +27,27 @@ func (actions *Actions) GetAllUsers(conn net.Conn) (error) {
 	return encoder.Encode(user)
 }
 
+func (actions *Actions) SendMessage(conn net.Conn, request *Request) (error) {
+	sender := actions.Users.GetByConn(conn)
+	recipients := actions.Users.GetByIds(request.UserIds)
+	var err error
+
+	for _, user := range recipients {
+		if user == nil {
+			message := ErrorMessage { "User(s) not found" }
+			encoder := json.NewEncoder(conn)
+			err = encoder.Encode(message)
+			return err
+		}
+
+		userMessage := UserMessage { request.Message, sender.Id }
+		encoder := json.NewEncoder(user.Conn)
+		err = encoder.Encode(userMessage)
+	}
+
+	return err
+}
+
 func (actions *Actions) Logout(conn net.Conn) (error) {
 	actions.Users.DeleteByConn(conn)
 	info := InfoMessage { "Logged out" }

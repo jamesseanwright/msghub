@@ -5,7 +5,7 @@ import (
 	"msghub"
 )
 
-func TestGetUserId(t *testing.T) {
+func TestActionsGetUserId(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.Users.Add(conn) // TODO: mock user repo
@@ -16,7 +16,7 @@ func TestGetUserId(t *testing.T) {
 	}
 }
 
-func TestGetAllUsers(t *testing.T) {
+func TestActionsGetAllUsers(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.Users.Add(conn)
@@ -28,7 +28,7 @@ func TestGetAllUsers(t *testing.T) {
 	}
 }
 
-func TestLogout(t *testing.T) {
+func TestActionsLogout(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.Users.Add(conn)
@@ -39,7 +39,20 @@ func TestLogout(t *testing.T) {
 	}
 }
 
-func TestNotFound(t *testing.T) {
+func TestActionsSendMessage(t *testing.T) {
+	conn := NewMockConn()
+	request := &main.Request{ "sendMessage", []uint64{2}, "Hello" }
+	actions := main.NewActions()
+	actions.Users.Add(conn)
+	actions.Users.Add(NewMockConn())
+	actions.SendMessage(conn, request)
+
+	if !conn.WasMethodCalled("Write") {
+		t.Fatal("Connection was never written to")
+	}
+}
+
+func TestActionsNotFound(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.NotFound(conn)

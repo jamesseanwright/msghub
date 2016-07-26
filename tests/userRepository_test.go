@@ -32,16 +32,66 @@ func TestUserRepositoryGetAllByConnExcept(t *testing.T) {
 	users := userRepository.GetAllByConnExcept(conn)
 
 	if users == nil {
-		t.Fatal("Returned users map is nil")
+		t.Fatal("Returned users array is nil")
 	}
 
 	if len(users) != 2 {
-		t.Fatalf("Map is of incorrect length. Got %d, wanted %d", len(users), 2)
+		t.Fatalf("array is of incorrect length. Got %d, wanted %d", len(users), 2)
 	}
 
 	for _, user := range users {
 		if user.Id == id {
 			t.Fatal("Returned user for the ID that should have been excluded")			
+		}
+	}
+}
+
+func TestUserRepositoryGetById(t *testing.T) {
+	conn := NewMockConn()
+	userRepository := main.NewUserRepository()
+	userRepository.Add(conn);
+	id := uint64(1)
+
+	user := userRepository.GetById(id)
+
+	if user == nil {
+		t.Fatal("Returned user is nil")
+	}
+
+	if wanted, got := id, user.Id; wanted != got {
+		t.Fatalf("Incorrect user returned. Wanted %d, got %d", wanted, got)
+	}
+}
+
+func TestUserRepositoryGetByIdNilIfNotFound(t *testing.T) {
+	userRepository := main.NewUserRepository()
+
+	user := userRepository.GetById(1)
+
+	if user != nil {
+		t.Fatal("Expected returned user to be nil")
+	}
+}
+
+func TestUserRepositoryGetByIds(t *testing.T) {
+	userRepository := main.NewUserRepository()
+	userRepository.Add(NewMockConn());
+	userRepository.Add(NewMockConn());
+	ids := []uint64{1, 2}
+
+	users := userRepository.GetByIds(ids)
+
+	if users == nil {
+		t.Fatal("Returned users array is nil")
+	}
+
+	if wanted, got := len(ids), len(users); wanted != got {
+		t.Fatalf("Returned array is wrong length. Wanted %d, got %d", wanted, got)
+	}
+
+	for _, user := range users {
+		if user.Id != ids[0] && user.Id != ids[1] {
+			t.Fatal("Returned incorrect user", user.Id)
 		}
 	}
 }
@@ -54,11 +104,11 @@ func TestUserRepositoryOneUserGetAllByConnExcept(t *testing.T) {
 	users := userRepository.GetAllByConnExcept(conn)
 
 	if users == nil {
-		t.Fatal("Returned users map is nil")
+		t.Fatal("Returned users array is nil")
 	}
 
 	if len(users) != 0 {
-		t.Fatalf("Map is of incorrect length. Got %d, wanted %d", len(users), 0)
+		t.Fatalf("array is of incorrect length. Got %d, wanted %d", len(users), 0)
 	}
 }
 

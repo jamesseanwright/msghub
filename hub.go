@@ -32,40 +32,40 @@ func (hub *Hub) Bind() {
 }
 
 func (hub *Hub) Listen() {
+	defer hub.Listener.Close()
+
 	for {
 		conn, err := hub.Listener.Accept()
+		fmt.Println("New connection!")
 
 		if err != nil {
 			panic(err)
 		}
 
 		hub.Actions.Users.Add(conn)
-
 		go hub.ListenForRequests(conn)
 	}
 }
 
 func (hub *Hub) ListenForRequests(conn net.Conn) {
-	var request Request
 	decoder := json.NewDecoder(conn);
 
 	for decoder.More() {
-		err := decoder.Decode(&request)
-
-		if err != nil {
-			panic(err)
-		}
+		var request Request	
+		decoder.Decode(&request)
 
 		switch request.Type {
 			case "getUserId":
 				hub.Actions.GetUserId(conn)
-				break
 
 			case "getAllUsers":
 				hub.Actions.GetAllUsers(conn)
 
 			case "logout":
 				hub.Actions.Logout(conn)
+
+			case "sendMessage":
+				hub.Actions.SendMessage(conn, &request)
 
 			default:
 				hub.Actions.NotFound(conn)
