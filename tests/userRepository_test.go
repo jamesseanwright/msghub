@@ -21,14 +21,15 @@ func TestUserRepositoryAddAndGetByConn(t *testing.T) {
 	}
 }
 
-func TestUserRepositoryGetAllByIdExcept(t *testing.T) {
+func TestUserRepositoryGetAllByConnExcept(t *testing.T) {
 	id := uint64(2)
+	conn := NewMockConn()
 	userRepository := main.NewUserRepository()
 	userRepository.Add(NewMockConn());
-	userRepository.Add(NewMockConn());
+	userRepository.Add(conn);
 	userRepository.Add(NewMockConn());
 	
-	users := userRepository.GetAllByIdExcept(id)
+	users := userRepository.GetAllByConnExcept(conn)
 
 	if users == nil {
 		t.Fatal("Returned users map is nil")
@@ -45,12 +46,11 @@ func TestUserRepositoryGetAllByIdExcept(t *testing.T) {
 	}
 }
 
-func TestUserRepositoryDelete(t *testing.T) {
-	id := uint64(1)
+func TestUserRepositoryDeleteByConn(t *testing.T) {
 	userRepository := main.NewUserRepository()
 	conn := NewMockConn()
 	userRepository.Add(conn);
-	userRepository.Delete(id);
+	userRepository.DeleteByConn(conn);
 	user := userRepository.GetByConn(conn)
 
 	if user != nil {
