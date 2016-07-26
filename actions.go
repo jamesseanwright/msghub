@@ -27,9 +27,9 @@ func (actions *Actions) GetAllUsers(conn net.Conn) (error) {
 	return encoder.Encode(user)
 }
 
-func (actions *Actions) Disconnect(conn net.Conn) (error) {
+func (actions *Actions) Logout(conn net.Conn) (error) {
 	actions.Users.DeleteByConn(conn)
-	info := InfoMessage { "Connection closed" }
+	info := InfoMessage { "Logged out" }
 	encoder := json.NewEncoder(conn)
 	return encoder.Encode(info)
 }

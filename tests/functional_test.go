@@ -34,7 +34,7 @@ func TestIdentityMessage(t *testing.T) {
 			t.Errorf("Expected user ID to be %d, but got %d", wantedId, user.Id)
 		}
 
-		disconnect(conn, t)
+		logout(conn, t)
 	}
 }
 
@@ -59,11 +59,11 @@ func TestListMessage(t *testing.T) {
 	}
 
 	for _, conn := range conns {
-		disconnect(conn, t)
+		logout(conn, t)
 	}
 }
 
-func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
+func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
 	masterConn := dial(port, t)
 	conns := [2]net.Conn{dial(port, t), dial(port, t)}
@@ -79,10 +79,10 @@ func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
 			t.Errorf("Expected different users array length. Wanted %d, got %d", wanted, got)
 		}
 
-		disconnect(conns[i], t)
+		logout(conns[i], t)
 	}
 
-	disconnect(masterConn, t)
+	logout(masterConn, t)
 }
 
 func TestInvalidCommand(t *testing.T) {
@@ -101,7 +101,7 @@ func TestInvalidCommand(t *testing.T) {
 		t.Error("Incorrect error message", wanted, got)
 	}
 
-	disconnect(conn, t)
+	logout(conn, t)
 }
 
 func dial(port string, t *testing.T) net.Conn {
@@ -132,8 +132,8 @@ func unmarshal(target interface{}, conn net.Conn, t *testing.T) {
 	}
 }
 
-func disconnect(conn net.Conn, t *testing.T) {
-	payload := `{ "type": "disconnect" }`
+func logout(conn net.Conn, t *testing.T) {
+	payload := `{ "type": "logout" }`
 	sendPayload(conn, payload, t)
 	var info main.InfoMessage
 	unmarshal(&info, conn, t)

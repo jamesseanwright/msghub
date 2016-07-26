@@ -28,11 +28,11 @@ func TestGetAllUsers(t *testing.T) {
 	}
 }
 
-func TestDisconnect(t *testing.T) {
+func TestLogout(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.Users.Add(conn)
-	actions.Disconnect(conn)
+	actions.Logout(conn)
 
 	if !conn.WasMethodCalled("Write") {
 		t.Fatal("Connection was never written to")

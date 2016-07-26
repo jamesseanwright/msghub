@@ -64,8 +64,8 @@ func (hub *Hub) ListenForRequests(conn net.Conn) {
 			case "getAllUsers":
 				hub.Actions.GetAllUsers(conn)
 
-			case "disconnect":
-				hub.Actions.Disconnect(conn)
+			case "logout":
+				hub.Actions.Logout(conn)
 
 			default:
 				hub.Actions.NotFound(conn)
