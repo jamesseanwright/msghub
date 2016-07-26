@@ -67,9 +67,9 @@ func TestListMessage(t *testing.T) {
 func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
 	conns := []net.Conn{ dial(port, t), dial(port, t), dial(port, t) }
-	var users []*main.User
 
 	for i := len(conns) - 1; i >= 0; i-- {
+		var users []*main.User
 		sendPayload(conns[0], payload, t)
 		unmarshal(&users, conns[0], t)
 		fmt.Println(users)
