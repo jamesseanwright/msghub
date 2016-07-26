@@ -85,6 +85,39 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 	logout(masterConn, t)
 }
 
+func TestRelayMessage(t *testing.T) {
+	payload := `{ "type": "sendMessage", "userIds": [5, 8], "message": "Hello" }`
+	masterConn := dial(port, t)
+	connsCount := 1
+	conns := make([]net.Conn, connsCount)
+
+	for i := 0; i < connsCount; i++ {
+		conns[i] = dial(port, t)
+	}
+
+	sendPayload(masterConn, payload, t)
+
+	for i := 0; i < connsCount; i++ {
+		var message *main.UserMessage
+		conn := conns[i]
+		isRecipient := i == 5 || i == 8
+		decoder := json.NewDecoder(conn)
+		decoder.Decode(&message)
+
+		if isRecipient && message == nil {
+			t.Error("Intended recipient didn't receive message")
+		} else if wanted, got := "Hello", message.Message; isRecipient && wanted != got {
+			t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
+		} else if !isRecipient && message != nil {
+			t.Error("Incorrect recipient received message")
+		}
+
+		logout(conn, t)
+	}
+
+	logout(masterConn, t)
+}
+
 func TestInvalidCommand(t *testing.T) {
 	payload := `{ "type": "foobar" }`
 	conn := dial(port, t)
@@ -95,9 +128,7 @@ func TestInvalidCommand(t *testing.T) {
 
 	if err == nil {
 		t.Error("Expected error response to not be nil")
-	}
-
-	if got, wanted := err.Message, "Command not found"; got != wanted {
+	} else if got, wanted := err.Message, "Command not found"; got != wanted {
 		t.Error("Incorrect error message", wanted, got)
 	}
 
@@ -135,7 +166,7 @@ func unmarshal(target interface{}, conn net.Conn, t *testing.T) {
 func logout(conn net.Conn, t *testing.T) {
 	payload := `{ "type": "logout" }`
 	sendPayload(conn, payload, t)
-	var info main.InfoMessage
+	var info *main.InfoMessage
 	unmarshal(&info, conn, t)
 	conn.Close()
 }
