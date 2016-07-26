@@ -7,6 +7,7 @@ import (
 	"strings"
 	"encoding/json"
 	"os"
+	"fmt"
 )
 
 const port = ":9001"
@@ -48,12 +49,12 @@ func TestListMessage(t *testing.T) {
 
 	if users == nil {
 		t.Error("Expected users array to not be nil")
-	} else if wanted, got := len(conns), len(users) - 1; wanted != got {
+	} else if wanted, got := len(conns) - 1, len(users); wanted != got {
 		t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
 	}
 
 	for _, user := range users {
-		if user.Id != 2 || user.Id != 3 {
+		if user.Id != 2 && user.Id != 3 {
 			t.Error("User has incorrect ID:", user.Id)
 		}
 	}
@@ -71,10 +72,11 @@ func TestListMessageRemovesDisconnectedUsers(t *testing.T) {
 	for i := len(conns) - 1; i >= 0; i-- {
 		sendPayload(conns[0], payload, t)
 		unmarshal(&users, conns[0], t)
+		fmt.Println(users)
 
 		if users == nil {
 			t.Error("Expected users array to not be nil")
-		} else if wanted, got := len(conns), len(users) - 1; wanted != got {
+		} else if wanted, got := len(conns) - 1, len(users); wanted != got {
 			t.Errorf("Expected different users array length. Got %d, wanted %d", got, wanted)
 		}
 
