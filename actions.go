@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"net"
 	"fmt"
+	"net"
 )
 
 const maxMessageLength = 1024
@@ -35,7 +35,7 @@ func (actions *Actions) GetAllUsers(conn net.Conn) error {
 func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 	err := actions.validateRequest(conn, request)
 
-	if (err != nil) {
+	if err != nil {
 		actions.sendError(conn, err.Error())
 		return err
 	}
