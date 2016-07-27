@@ -126,8 +126,8 @@ func TestRelayMessage(t *testing.T) {
 }
 
 func TestRelayMessageTooLong(t *testing.T) {
-	long := fmt.Sprintf("[%s]", strings.Repeat("1,", 1025))
-	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [1], "message": "%s" }`, long)
+	long := fmt.Sprintf("[%s]", strings.Repeat("1,", 1024) + "1")
+	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [1], "message": %s }`, long)
 	conn := dial(port, t)
 
 	sendPayload(conn, payload, t)

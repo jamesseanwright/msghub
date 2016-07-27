@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"net"
+	"errors"
 )
+
+const maxMessageLength = 1024
 
 // Actions contains various handlers for responding to incoming TCP requests
 type Actions struct {
@@ -29,9 +32,15 @@ func (actions *Actions) GetAllUsers(conn net.Conn) error {
 }
 
 func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
+	err := actions.validateRequest(conn, request)
+
+	if (err != nil) {
+		actions.sendError(conn, err.Error())
+		return err
+	}
+
 	sender := actions.Users.GetByConn(conn)
 	recipients := actions.Users.GetByIDs(request.UserIDs)
-	var err error
 
 	for _, user := range recipients {
 		if user == nil {
@@ -61,7 +70,19 @@ func (actions *Actions) Logout(conn net.Conn) error {
 }
 
 func (actions *Actions) NotFound(conn net.Conn) error {
-	err := Message{"Command not found"}
+	return actions.sendError(conn, "Command not found")
+}
+
+func (actions *Actions) validateRequest(conn net.Conn, request *Request) error {
+	if len(request.Message) > maxMessageLength {
+		return errors.New("Message is too long")
+	}
+
+	return nil
+}
+
+func (actions *Actions) sendError(conn net.Conn, message string) error {
+	err := Message{message}
 	encoder := json.NewEncoder(conn)
 	return encoder.Encode(err)
 }
