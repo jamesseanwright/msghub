@@ -15,7 +15,7 @@ func NewActions() *Actions {
 	return actions
 }
 
-func (actions *Actions) GetUserId(conn net.Conn) error {
+func (actions *Actions) GetUserID(conn net.Conn) error {
 	user := actions.Users.GetByConn(conn)
 	encoder := json.NewEncoder(conn)
 	return encoder.Encode(user)
@@ -29,7 +29,7 @@ func (actions *Actions) GetAllUsers(conn net.Conn) error {
 
 func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 	sender := actions.Users.GetByConn(conn)
-	recipients := actions.Users.GetByIds(request.UserIds)
+	recipients := actions.Users.GetByIDs(request.UserIDs)
 	var err error
 
 	for _, user := range recipients {
@@ -40,7 +40,7 @@ func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 			return err
 		}
 
-		userMessage := UserMessage{request.Message, sender.Id}
+		userMessage := UserMessage{request.Message, sender.ID}
 		encoder := json.NewEncoder(user.Conn)
 		err = encoder.Encode(userMessage)
 	}

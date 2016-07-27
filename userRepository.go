@@ -33,13 +33,13 @@ func (repo *UserRepository) GetByConn(conn net.Conn) *User {
 	return user
 }
 
-func (repo *UserRepository) GetById(id uint64) *User {
+func (repo *UserRepository) GetByID(id uint64) *User {
 	var user *User
 
 	repo.Mutex.RLock()
 
 	for _, u := range repo.Users {
-		if u.Id == id {
+		if u.ID == id {
 			user = u
 			break
 		}
@@ -50,11 +50,11 @@ func (repo *UserRepository) GetById(id uint64) *User {
 	return user
 }
 
-func (repo *UserRepository) GetByIds(ids []uint64) []*User {
+func (repo *UserRepository) GetByIDs(ids []uint64) []*User {
 	users := make([]*User, len(ids))
 
 	for i, id := range ids {
-		users[i] = repo.GetById(id)
+		users[i] = repo.GetByID(id)
 	}
 
 	return users

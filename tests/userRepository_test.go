@@ -16,8 +16,8 @@ func TestUserRepositoryAddAndGetByConn(t *testing.T) {
 		t.Fatal("Retrieved user is nil")
 	}
 
-	if user.Id != id {
-		t.Fatalf("Unexpected user. Got %d, wanted %d", user.Id, id)
+	if user.ID != id {
+		t.Fatalf("Unexpected user. Got %d, wanted %d", user.ID, id)
 	}
 }
 
@@ -40,46 +40,46 @@ func TestUserRepositoryGetAllByConnExcept(t *testing.T) {
 	}
 
 	for _, user := range users {
-		if user.Id == id {
+		if user.ID == id {
 			t.Fatal("Returned user for the ID that should have been excluded")			
 		}
 	}
 }
 
-func TestUserRepositoryGetById(t *testing.T) {
+func TestUserRepositoryGetByID(t *testing.T) {
 	conn := NewMockConn()
 	userRepository := main.NewUserRepository()
 	userRepository.Add(conn);
 	id := uint64(1)
 
-	user := userRepository.GetById(id)
+	user := userRepository.GetByID(id)
 
 	if user == nil {
 		t.Fatal("Returned user is nil")
 	}
 
-	if wanted, got := id, user.Id; wanted != got {
+	if wanted, got := id, user.ID; wanted != got {
 		t.Fatalf("Incorrect user returned. Wanted %d, got %d", wanted, got)
 	}
 }
 
-func TestUserRepositoryGetByIdNilIfNotFound(t *testing.T) {
+func TestUserRepositoryGetByIDNilIfNotFound(t *testing.T) {
 	userRepository := main.NewUserRepository()
 
-	user := userRepository.GetById(1)
+	user := userRepository.GetByID(1)
 
 	if user != nil {
 		t.Fatal("Expected returned user to be nil")
 	}
 }
 
-func TestUserRepositoryGetByIds(t *testing.T) {
+func TestUserRepositoryGetByIDs(t *testing.T) {
 	userRepository := main.NewUserRepository()
 	userRepository.Add(NewMockConn());
 	userRepository.Add(NewMockConn());
 	ids := []uint64{1, 2}
 
-	users := userRepository.GetByIds(ids)
+	users := userRepository.GetByIDs(ids)
 
 	if users == nil {
 		t.Fatal("Returned users array is nil")
@@ -90,8 +90,8 @@ func TestUserRepositoryGetByIds(t *testing.T) {
 	}
 
 	for _, user := range users {
-		if user.Id != ids[0] && user.Id != ids[1] {
-			t.Fatal("Returned incorrect user", user.Id)
+		if user.ID != ids[0] && user.ID != ids[1] {
+			t.Fatal("Returned incorrect user", user.ID)
 		}
 	}
 }

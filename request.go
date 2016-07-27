@@ -2,6 +2,6 @@ package main
 
 type Request struct {
 	Type    string
-	UserIds []uint64
+	UserIDs []uint64
 	Message string
 }

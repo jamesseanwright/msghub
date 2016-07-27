@@ -55,8 +55,8 @@ func (hub *Hub) ListenForRequests(conn net.Conn) {
 		decoder.Decode(&request)
 
 		switch request.Type {
-		case "getUserId":
-			hub.Actions.GetUserId(conn)
+		case "getUserID":
+			hub.Actions.GetUserID(conn)
 
 		case "getAllUsers":
 			hub.Actions.GetAllUsers(conn)

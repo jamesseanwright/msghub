@@ -19,19 +19,19 @@ func TestMain(m *testing.M) {
 }
 
 func TestIdentityMessage(t *testing.T) {
-	payload := `{ "type": "getUserId" }`
+	payload := `{ "type": "getUserID" }`
 	conns := [3]net.Conn{dial(port, t), dial(port, t), dial(port, t)}
 	var user *main.User
 
 	for i, conn := range conns {
-		wantedId := i + 1
+		wantedID := i + 1
 		sendPayload(conn, payload, t)
 		unmarshal(&user, conn, t)
 
 		if user == nil {
 			t.Error("Expected user to not be nil")
-		} else if user.Id != uint64(wantedId) {
-			t.Errorf("Expected user ID to be %d, but got %d", wantedId, user.Id)
+		} else if user.ID != uint64(wantedID) {
+			t.Errorf("Expected user ID to be %d, but got %d", wantedID, user.ID)
 		}
 
 		logout(conn, t)
@@ -53,8 +53,8 @@ func TestListMessage(t *testing.T) {
 	}
 
 	for _, user := range users {
-		if user.Id != 2 && user.Id != 3 {
-			t.Error("User has incorrect ID:", user.Id)
+		if user.ID != 2 && user.ID != 3 {
+			t.Error("User has incorrect ID:", user.ID)
 		}
 	}
 
@@ -86,7 +86,7 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 }
 
 func TestRelayMessage(t *testing.T) {
-	payload := `{ "type": "sendMessage", "userIds": [2, 4 ,5], "message": "Hello" }`
+	payload := `{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": "Hello" }`
 	masterConn := dial(port, t)
 	connsCount := 5
 	conns := make([]net.Conn, connsCount)
@@ -123,7 +123,7 @@ func TestRelayMessage(t *testing.T) {
 }
 
 func TestRelayMessageInvalidUser(t *testing.T) {
-	payload := `{ "type": "sendMessage", "userIds": [10], "message": "Hello" }`
+	payload := `{ "type": "sendMessage", "userIDs": [10], "message": "Hello" }`
 	conn := dial(port, t)
 
 	sendPayload(conn, payload, t)

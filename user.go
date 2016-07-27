@@ -5,6 +5,6 @@ import (
 )
 
 type User struct {
-	Id   uint64
+	ID   uint64
 	Conn net.Conn `json:"-"`
 }

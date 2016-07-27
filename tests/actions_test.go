@@ -5,11 +5,11 @@ import (
 	"msghub"
 )
 
-func TestActionsGetUserId(t *testing.T) {
+func TestActionsGetUserID(t *testing.T) {
 	conn := NewMockConn()
 	actions := main.NewActions()
 	actions.Users.Add(conn) // TODO: mock user repo
-	actions.GetUserId(conn)
+	actions.GetUserID(conn)
 
 	if !conn.WasMethodCalled("Write") {
 		t.Fatal("Connection was never written to")
