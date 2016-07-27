@@ -125,6 +125,25 @@ func TestRelayMessage(t *testing.T) {
 	logout(masterConn, t)
 }
 
+func TestRelayMessageTooLong(t *testing.T) {
+	long := fmt.Sprintf("[%s]", strings.Repeat("1,", 1025))
+	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [1], "message": "%s" }`, long)
+	conn := dial(port, t)
+
+	sendPayload(conn, payload, t)
+
+	var message *main.Message
+	unmarshal(&message, conn, t)
+
+	if message == nil {
+		t.Error("Expected error response to not be nil")
+	} else if wanted, got := "Message is too long", message.Message; wanted != got {
+		t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
+	}
+
+	logout(conn, t)
+}
+
 func TestRelayMessageInvalidUser(t *testing.T) {
 	payload := `{ "type": "sendMessage", "userIDs": [10], "message": "Hello" }`
 	conn := dial(port, t)
