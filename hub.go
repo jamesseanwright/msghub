@@ -3,7 +3,7 @@ package main
 import (
 	"net"
 	"encoding/json"
-	"fmt"
+	"log"
 )
 
 type Hub struct {
@@ -28,7 +28,7 @@ func (hub *Hub) Bind() {
 	}
 
 	hub.Listener = listener
-	fmt.Println("Listening on", hub.Port)
+	log.Println("Listening on", hub.Port)
 }
 
 func (hub *Hub) Listen() {
@@ -36,7 +36,7 @@ func (hub *Hub) Listen() {
 
 	for {
 		conn, err := hub.Listener.Accept()
-		fmt.Println("New connection!")
+		log.Println("New connection!")
 
 		if err != nil {
 			panic(err)
