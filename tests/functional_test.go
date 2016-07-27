@@ -137,7 +137,26 @@ func TestRelayMessageTooLong(t *testing.T) {
 
 	if message == nil {
 		t.Error("Expected error response to not be nil")
-	} else if wanted, got := "Message is too long", message.Message; wanted != got {
+	} else if wanted, got := "Message cannot exceed 1024 bytes", message.Message; wanted != got {
+		t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
+	}
+
+	logout(conn, t)
+}
+
+func TestRelayMessageTooManyRecipients(t *testing.T) {
+	users := fmt.Sprintf("[%s]", strings.Repeat("1,", 255) + "1")
+	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": %s, "message": [1] }`, users)
+	conn := dial(port, t)
+
+	sendPayload(conn, payload, t)
+
+	var message *main.Message
+	unmarshal(&message, conn, t)
+
+	if message == nil {
+		t.Error("Expected error response to not be nil")
+	} else if wanted, got := "Message cannot be send to more than 255 users", message.Message; wanted != got {
 		t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
 	}
 

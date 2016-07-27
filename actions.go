@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"net"
-	"errors"
+	"fmt"
 )
 
 const maxMessageLength = 1024
+const maxRecipients = 255
 
 // Actions contains various handlers for responding to incoming TCP requests
 type Actions struct {
@@ -75,7 +76,11 @@ func (actions *Actions) NotFound(conn net.Conn) error {
 
 func (actions *Actions) validateRequest(conn net.Conn, request *Request) error {
 	if len(request.Message) > maxMessageLength {
-		return errors.New("Message is too long")
+		return fmt.Errorf("Message cannot exceed %d bytes", maxMessageLength)
+	}
+
+	if len(request.UserIDs) > maxRecipients {
+		return fmt.Errorf("Message cannot be send to more than %d users", maxRecipients)
 	}
 
 	return nil
