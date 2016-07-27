@@ -5,6 +5,8 @@ import (
 	"sync"
 )
 
+// UserRepository is a goroutine-safe means
+// of storing and querying for active users
 type UserRepository struct {
 	Users map[net.Conn]*User
 	Mutex sync.RWMutex

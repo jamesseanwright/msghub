@@ -6,6 +6,8 @@ import (
 	"net"
 )
 
+// Hub listens incoming TCP connections and determines
+// which action should handle them
 type Hub struct {
 	Port     string
 	Actions  *Actions

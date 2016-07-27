@@ -5,6 +5,7 @@ import (
 	"net"
 )
 
+// Actions contains various handlers for responding to incoming TCP requests
 type Actions struct {
 	Users *UserRepository
 }
@@ -34,7 +35,7 @@ func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 
 	for _, user := range recipients {
 		if user == nil {
-			message := ErrorMessage{"User(s) not found"}
+			message := Message{"User(s) not found"}
 			encoder := json.NewEncoder(conn)
 			err = encoder.Encode(message)
 			return err
@@ -45,7 +46,7 @@ func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 		err = encoder.Encode(userMessage)
 	}
 
-	successMessage := InfoMessage{"Message delivered"}
+	successMessage := Message{"Message delivered"}
 	encoder := json.NewEncoder(conn)
 	err = encoder.Encode(successMessage)
 
@@ -54,13 +55,13 @@ func (actions *Actions) SendMessage(conn net.Conn, request *Request) error {
 
 func (actions *Actions) Logout(conn net.Conn) error {
 	actions.Users.DeleteByConn(conn)
-	info := InfoMessage{"Logged out"}
+	info := Message{"Logged out"}
 	encoder := json.NewEncoder(conn)
 	return encoder.Encode(info)
 }
 
 func (actions *Actions) NotFound(conn net.Conn) error {
-	err := ErrorMessage{"Command not found"}
+	err := Message{"Command not found"}
 	encoder := json.NewEncoder(conn)
 	return encoder.Encode(err)
 }

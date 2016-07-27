@@ -128,7 +128,7 @@ func TestRelayMessageInvalidUser(t *testing.T) {
 
 	sendPayload(conn, payload, t)
 
-	var message *main.ErrorMessage
+	var message *main.Message
 	unmarshal(&message, conn, t)
 
 	if message == nil {
@@ -143,7 +143,7 @@ func TestRelayMessageInvalidUser(t *testing.T) {
 func TestInvalidCommand(t *testing.T) {
 	payload := `{ "type": "foobar" }`
 	conn := dial(port, t)
-	var err *main.ErrorMessage
+	var err *main.Message
 
 	sendPayload(conn, payload, t)
 	unmarshal(&err, conn, t)
@@ -188,7 +188,7 @@ func unmarshal(target interface{}, conn net.Conn, t *testing.T) {
 func logout(conn net.Conn, t *testing.T) {
 	payload := `{ "type": "logout" }`
 	sendPayload(conn, payload, t)
-	var info *main.InfoMessage
+	var info *main.Message
 	unmarshal(&info, conn, t)
 	conn.Close()
 }
