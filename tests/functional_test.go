@@ -68,7 +68,7 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 	masterConn := dial(port, t)
 	conns := [2]net.Conn{dial(port, t), dial(port, t)}
 
-	for i := 0; i < len(conns) - 1; i++ {
+	for i := 0; i < len(conns); i++ {
 		var users []*main.User
 		sendPayload(masterConn, payload, t)
 		unmarshal(&users, masterConn, t)
@@ -86,9 +86,9 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 }
 
 func TestRelayMessage(t *testing.T) {
-	payload := `{ "type": "sendMessage", "userIds": [5, 8], "message": "Hello" }`
+	payload := `{ "type": "sendMessage", "userIds": [2, 4 ,5], "message": "Hello" }`
 	masterConn := dial(port, t)
-	connsCount := 1
+	connsCount := 5
 	conns := make([]net.Conn, connsCount)
 
 	for i := 0; i < connsCount; i++ {
@@ -99,23 +99,20 @@ func TestRelayMessage(t *testing.T) {
 
 	for i := 0; i < connsCount; i++ {
 		var message *main.UserMessage
-		var err *main.ErrorMessage
-
 		conn := conns[i]
-		isRecipient := i == 7 || i == 8
+		id := i + 2  // adding 2 to match 1-based IDs, and masterConn is #1
+		isRecipient := id == 2 || id == 4 || id == 5
 		decoder := json.NewDecoder(conn)
 
 		if (isRecipient) {
 			decoder.Decode(&message)
-		} else {
-			decoder.Decode(&err)
-		}
 
-		if isRecipient && message == nil {
-			t.Error("Intended recipient didn't receive message")
-		} else if wanted, got := "Hello", message.Message; isRecipient && wanted != got {
-			t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
-		} else if !isRecipient && err == nil {
+			if message == nil {
+				t.Error("Intended recipient didn't receive message")
+			} else if wanted, got := "Hello", message.Message; isRecipient && wanted != got {
+				t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
+			}
+		} else if !isRecipient && message != nil {
 			t.Error("Incorrect recipient received message")
 		}
 

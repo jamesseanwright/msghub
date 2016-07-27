@@ -45,6 +45,10 @@ func (actions *Actions) SendMessage(conn net.Conn, request *Request) (error) {
 		err = encoder.Encode(userMessage)
 	}
 
+	successMessage := InfoMessage { "Message delivered" }
+	encoder := json.NewEncoder(conn)
+	err = encoder.Encode(successMessage)
+
 	return err
 }
 
