@@ -36,7 +36,7 @@ echo "{ \"type\": \"getAllUsers\" }" | nc localhost 9001
 
 ### Go Version
 
-msghub was developed against Go 1.6, but should be compatible with earlier versions
+msghub was developed against Go 1.6.
 
 ### Running The Tests
 
