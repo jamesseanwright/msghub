@@ -10,7 +10,7 @@ type UserRepository struct {
 	Mutex sync.RWMutex
 }
 
-func NewUserRepository() (*UserRepository) {
+func NewUserRepository() *UserRepository {
 	repo := new(UserRepository)
 	repo.Users = make(map[net.Conn]*User)
 
@@ -20,12 +20,12 @@ func NewUserRepository() (*UserRepository) {
 func (repo *UserRepository) Add(conn net.Conn) {
 	repo.Mutex.Lock()
 	id := uint64(len(repo.Users) + 1)
-	user := &User{ id, conn }
+	user := &User{id, conn}
 	repo.Users[conn] = user
 	repo.Mutex.Unlock()
 }
 
-func (repo *UserRepository) GetByConn(conn net.Conn) (*User) {
+func (repo *UserRepository) GetByConn(conn net.Conn) *User {
 	repo.Mutex.RLock()
 	user := repo.Users[conn]
 	repo.Mutex.RUnlock()
@@ -33,7 +33,7 @@ func (repo *UserRepository) GetByConn(conn net.Conn) (*User) {
 	return user
 }
 
-func (repo *UserRepository) GetById(id uint64) (*User) {
+func (repo *UserRepository) GetById(id uint64) *User {
 	var user *User
 
 	repo.Mutex.RLock()
@@ -50,7 +50,7 @@ func (repo *UserRepository) GetById(id uint64) (*User) {
 	return user
 }
 
-func (repo *UserRepository) GetByIds(ids []uint64) ([]*User) {
+func (repo *UserRepository) GetByIds(ids []uint64) []*User {
 	users := make([]*User, len(ids))
 
 	for i, id := range ids {
@@ -60,16 +60,16 @@ func (repo *UserRepository) GetByIds(ids []uint64) ([]*User) {
 	return users
 }
 
-func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
-	repo.Mutex.RLock()	
+func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) []*User {
+	repo.Mutex.RLock()
 	onlyUser := len(repo.Users) == 1
-	
-	if (onlyUser) {
+
+	if onlyUser {
 		repo.Mutex.RUnlock()
 		return make([]*User, 0)
 	}
 
-	users := make([]*User, len(repo.Users) - 1)
+	users := make([]*User, len(repo.Users)-1)
 	i := 0
 
 	for _, user := range repo.Users {
@@ -79,7 +79,7 @@ func (repo *UserRepository) GetAllByConnExcept(conn net.Conn) ([]*User) {
 		}
 	}
 
-	repo.Mutex.RUnlock()	
+	repo.Mutex.RUnlock()
 
 	return users
 }

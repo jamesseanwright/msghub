@@ -1,18 +1,18 @@
 package main
 
 import (
-	"net"
 	"encoding/json"
 	"log"
+	"net"
 )
 
 type Hub struct {
-	Port string
-	Actions *Actions
+	Port     string
+	Actions  *Actions
 	Listener net.Listener
 }
 
-func NewHub(port string) (*Hub) {
+func NewHub(port string) *Hub {
 	hub := new(Hub)
 	hub.Port = port
 	hub.Actions = NewActions()
@@ -48,27 +48,27 @@ func (hub *Hub) Listen() {
 }
 
 func (hub *Hub) ListenForRequests(conn net.Conn) {
-	decoder := json.NewDecoder(conn);
+	decoder := json.NewDecoder(conn)
 
 	for decoder.More() {
-		var request Request	
+		var request Request
 		decoder.Decode(&request)
 
 		switch request.Type {
-			case "getUserId":
-				hub.Actions.GetUserId(conn)
+		case "getUserId":
+			hub.Actions.GetUserId(conn)
 
-			case "getAllUsers":
-				hub.Actions.GetAllUsers(conn)
+		case "getAllUsers":
+			hub.Actions.GetAllUsers(conn)
 
-			case "logout":
-				hub.Actions.Logout(conn)
+		case "logout":
+			hub.Actions.Logout(conn)
 
-			case "sendMessage":
-				hub.Actions.SendMessage(conn, &request)
+		case "sendMessage":
+			hub.Actions.SendMessage(conn, &request)
 
-			default:
-				hub.Actions.NotFound(conn)
+		default:
+			hub.Actions.NotFound(conn)
 		}
 	}
 }
