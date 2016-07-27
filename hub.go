@@ -43,11 +43,11 @@ func (hub *Hub) Listen() {
 		}
 
 		hub.Actions.Users.Add(conn)
-		go hub.ListenForRequests(conn)
+		go hub.listenForRequests(conn)
 	}
 }
 
-func (hub *Hub) ListenForRequests(conn net.Conn) {
+func (hub *Hub) listenForRequests(conn net.Conn) {
 	decoder := json.NewDecoder(conn)
 
 	for decoder.More() {
