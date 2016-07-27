@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"fmt"
 	"msghub"
 )
 
@@ -86,7 +87,8 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 }
 
 func TestRelayMessage(t *testing.T) {
-	payload := `{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": "Hello" }`
+	helloInBytes := "[72, 101, 108, 108, 111]"
+	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": %s }`, helloInBytes)
 	masterConn := dial(port, t)
 	connsCount := 5
 	conns := make([]net.Conn, connsCount)
