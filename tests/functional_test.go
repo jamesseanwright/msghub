@@ -8,6 +8,7 @@ import (
 	"testing"
 	"fmt"
 	"msghub"
+	"bytes"
 )
 
 const port = ":9001"
@@ -87,8 +88,8 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 }
 
 func TestRelayMessage(t *testing.T) {
-	helloInBytes := "[72, 101, 108, 108, 111]"
-	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": %s }`, helloInBytes)
+	hello := "[72, 101, 108, 108, 111]"
+	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": %s }`, hello)
 	masterConn := dial(port, t)
 	connsCount := 5
 	conns := make([]net.Conn, connsCount)
@@ -111,7 +112,7 @@ func TestRelayMessage(t *testing.T) {
 
 			if message == nil {
 				t.Error("Intended recipient didn't receive message")
-			} else if wanted, got := "Hello", message.Message; isRecipient && wanted != got {
+			} else if wanted, got := "Hello", toString(message.Message); isRecipient && wanted != got {
 				t.Errorf("Wrong contents transmitted. Got %s, wanted %s", got, wanted)
 			}
 		} else if !isRecipient && message != nil {
@@ -193,4 +194,9 @@ func logout(conn net.Conn, t *testing.T) {
 	var info *main.Message
 	unmarshal(&info, conn, t)
 	conn.Close()
+}
+
+func toString(data []byte) (string) {
+	buf := bytes.NewBuffer(data)
+	return buf.String()
 }

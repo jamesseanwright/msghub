@@ -41,7 +41,7 @@ func TestActionsLogout(t *testing.T) {
 
 func TestActionsSendMessage(t *testing.T) {
 	conn := NewMockConn()
-	request := &main.Request{ "sendMessage", []uint64{2}, "Hello" }
+	request := &main.Request{ "sendMessage", []uint64{2}, []byte{1} }
 	actions := main.NewActions()
 	actions.Users.Add(conn)
 	actions.Users.Add(NewMockConn())
