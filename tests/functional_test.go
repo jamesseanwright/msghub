@@ -11,10 +11,10 @@ import (
 	"bytes"
 )
 
-const port = ":9001"
+const host = "localhost:9001"
 
 func TestMain(m *testing.M) {
-	hub := main.NewHub(port)
+	hub := main.NewHub(host)
 	hub.Bind()
 	go hub.Listen()
 	os.Exit(m.Run())
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 
 func TestIdentityMessage(t *testing.T) {
 	payload := `{ "type": "getUserID" }`
-	conns := [3]net.Conn{dial(port, t), dial(port, t), dial(port, t)}
+	conns := [3]net.Conn{dial(host, t), dial(host, t), dial(host, t)}
 	var user *main.User
 
 	for i, conn := range conns {
@@ -42,7 +42,7 @@ func TestIdentityMessage(t *testing.T) {
 
 func TestListMessage(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
-	conns := [3]net.Conn{dial(port, t), dial(port, t), dial(port, t)}
+	conns := [3]net.Conn{dial(host, t), dial(host, t), dial(host, t)}
 	var users []*main.User
 
 	sendPayload(conns[0], payload, t)
@@ -67,8 +67,8 @@ func TestListMessage(t *testing.T) {
 
 func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 	payload := `{ "type": "getAllUsers" }`
-	masterConn := dial(port, t)
-	conns := [2]net.Conn{dial(port, t), dial(port, t)}
+	masterConn := dial(host, t)
+	conns := [2]net.Conn{dial(host, t), dial(host, t)}
 
 	for i := 0; i < len(conns); i++ {
 		var users []*main.User
@@ -90,12 +90,12 @@ func TestListMessageRemovesLoggedOutUsers(t *testing.T) {
 func TestRelayMessage(t *testing.T) {
 	hello := "[72, 101, 108, 108, 111]"
 	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [2, 4 ,5], "message": %s }`, hello)
-	masterConn := dial(port, t)
+	masterConn := dial(host, t)
 	connsCount := 5
 	conns := make([]net.Conn, connsCount)
 
 	for i := 0; i < connsCount; i++ {
-		conns[i] = dial(port, t)
+		conns[i] = dial(host, t)
 	}
 
 	sendPayload(masterConn, payload, t)
@@ -128,7 +128,7 @@ func TestRelayMessage(t *testing.T) {
 func TestRelayMessageTooLong(t *testing.T) {
 	long := fmt.Sprintf("[%s]", strings.Repeat("1,", 1024) + "1")
 	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": [1], "message": %s }`, long)
-	conn := dial(port, t)
+	conn := dial(host, t)
 
 	sendPayload(conn, payload, t)
 
@@ -147,7 +147,7 @@ func TestRelayMessageTooLong(t *testing.T) {
 func TestRelayMessageTooManyRecipients(t *testing.T) {
 	users := fmt.Sprintf("[%s]", strings.Repeat("1,", 255) + "1")
 	payload := fmt.Sprintf(`{ "type": "sendMessage", "userIDs": %s, "message": [1] }`, users)
-	conn := dial(port, t)
+	conn := dial(host, t)
 
 	sendPayload(conn, payload, t)
 
@@ -165,7 +165,7 @@ func TestRelayMessageTooManyRecipients(t *testing.T) {
 
 func TestRelayMessageInvalidUser(t *testing.T) {
 	payload := `{ "type": "sendMessage", "userIDs": [10], "message": "Hello" }`
-	conn := dial(port, t)
+	conn := dial(host, t)
 
 	sendPayload(conn, payload, t)
 
@@ -183,7 +183,7 @@ func TestRelayMessageInvalidUser(t *testing.T) {
 
 func TestInvalidCommand(t *testing.T) {
 	payload := `{ "type": "foobar" }`
-	conn := dial(port, t)
+	conn := dial(host, t)
 	var err *main.Message
 
 	sendPayload(conn, payload, t)
@@ -198,11 +198,11 @@ func TestInvalidCommand(t *testing.T) {
 	logout(conn, t)
 }
 
-func dial(port string, t *testing.T) net.Conn {
-	conn, err := net.Dial("tcp", port)
+func dial(host string, t *testing.T) net.Conn {
+	conn, err := net.Dial("tcp", host)
 
 	if err != nil {
-		t.Fatalf("Couldn't connect to %s: %s", port, err)
+		t.Fatalf("Couldn't connect to %s: %s", host, err)
 	}
 
 	return conn

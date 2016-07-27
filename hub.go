@@ -9,28 +9,28 @@ import (
 // Hub listens incoming TCP connections and determines
 // which action should handle them
 type Hub struct {
-	Port     string
+	Host     string
 	Actions  *Actions
 	Listener net.Listener
 }
 
-func NewHub(port string) *Hub {
+func NewHub(host string) *Hub {
 	hub := new(Hub)
-	hub.Port = port
+	hub.Host = host
 	hub.Actions = NewActions()
 
 	return hub
 }
 
 func (hub *Hub) Bind() {
-	listener, err := net.Listen("tcp", hub.Port)
+	listener, err := net.Listen("tcp", hub.Host)
 
 	if err != nil {
 		panic(err)
 	}
 
 	hub.Listener = listener
-	log.Println("Listening on", hub.Port)
+	log.Println("Listening on", hub.Host)
 }
 
 func (hub *Hub) Listen() {

@@ -1,9 +1,9 @@
 package main
 
-const port = ":9001"
+const host = "localhost:9001"
 
 func main() {
-	hub := NewHub(port)
+	hub := NewHub(host)
 	hub.Bind()
 	hub.Listen()
 }
