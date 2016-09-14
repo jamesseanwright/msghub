@@ -31,7 +31,7 @@ echo "{ \"type\": \"getAllUsers\" }" | nc localhost 9001
 
 ## Local Setup
 
-* Ensure that this zip archive is extracted to `$GOPATH/src/msghub`
+* Clone this repo to `$GOPATH/src`
 * `cd $GOPATH/src/msghub`
 
 ### Go Version
